@@ -39,16 +39,37 @@ var _GlobalContext *_ExpressGlobalContext
 func NewExpress(config *ExpressConfig) *Express {
 	mux := http.NewServeMux()
 	_GlobalContext = &_ExpressGlobalContext{
-		mux:         mux,
-		config:      config,
-		middlewares: make([]_Middleware, 0),
+		mux:          mux,
+		config:       config,
+		middlewares:  make([]_Middleware, 0),
+		errorHandler: nil,
 	}
 	return &Express{}
 }
 
 func (app *Express) StartServer() {
 	log.Default().Printf("Starting server on %v", _GlobalContext.config.Port)
-	http.ListenAndServe(fmt.Sprintf(":%v", _GlobalContext.config.Port), _GlobalContext.mux)
+	_GlobalContext.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Oops, route not found"))
+	})
+	http.ListenAndServe(fmt.Sprintf(":%v", _GlobalContext.config.Port), http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if e := recover(); e != nil {
+				em := "Unhandled Exception"
+
+				switch e := e.(type) {
+				case error:
+					em = e.Error()
+				case string:
+					em = e
+				}
+				w.Write([]byte(em))
+				return
+			}
+		}()
+		_GlobalContext.mux.ServeHTTP(w, r)
+	}))
 }
 
 func (app *Express) Use(mw MiddlewareFunction) {

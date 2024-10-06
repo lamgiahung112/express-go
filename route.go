@@ -52,6 +52,7 @@ func (route *ExpressRoute) handleRequest(method string, handler func(w http.Resp
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
+		log.Default().Printf("%s request at route %s from %s", method, route.path, r.RemoteAddr)
 		requestContext := &RequestContext{
 			context: make(map[string]any),
 		}

@@ -10,13 +10,8 @@ type Express struct {
 }
 
 type ExpressConfig struct {
-	Host           string
-	Port           uint16
-	EnableCache    bool
-	CacheHost      string
-	CachePort      uint16
-	EnableJobQueue bool
-	QueueSize      uint64
+	Host string
+	Port uint16
 }
 
 type MiddlewareFunction func(r *http.Request, context *RequestContext) bool

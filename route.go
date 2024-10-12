@@ -3,6 +3,8 @@ package expressgo
 import (
 	"log"
 	"net/http"
+	"regexp"
+	"strings"
 )
 
 type ExpressRoute struct {
@@ -57,6 +59,15 @@ func (route *ExpressRoute) handleRequest(method string, handler func(w http.Resp
 			context: make(map[string]any),
 		}
 		for _, mw := range _GlobalContext.middlewares {
+			regexPattern := regexp.MustCompile(`{[^}]+}`).ReplaceAllString(mw.path, `[^/]+`)
+			regexPattern += "(?:/.*)?"
+
+			regex := regexp.MustCompile("^" + regexPattern + "$")
+
+			if !strings.HasPrefix(r.URL.Path, mw.path) || !regex.MatchString(r.URL.Path) {
+				continue
+			}
+
 			ok := mw.execute(r, requestContext)
 
 			if !ok {

@@ -90,3 +90,7 @@ func (requestContext *RequestContext) Get(key string) any {
 func (requestContext *RequestContext) Set(key string, value any) {
 	requestContext.context[key] = value
 }
+
+func (requestContext *RequestContext) GetRaw() *map[string]any {
+	return &requestContext.context
+}

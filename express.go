@@ -49,10 +49,6 @@ func NewExpress(config *ExpressConfig) *Express {
 
 func (app *Express) StartServer() {
 	log.Default().Printf("Starting server on %v", _GlobalContext.config.Port)
-	_GlobalContext.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Oops, route not found"))
-	})
 	http.ListenAndServe(fmt.Sprintf(":%v", _GlobalContext.config.Port), http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if e := recover(); e != nil {
